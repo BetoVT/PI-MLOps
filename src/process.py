@@ -1,56 +1,17 @@
 import pandas as pd
+import json
+import os
 
-def get_unconventional_data(line, string, position):
-    data = ""
-    for c in string:
-        if c == ',' or c == 'u': break
-        if c == ':' or c == ' ': continue
-        data = data + c
-    return data
+if os.path.exists('Project\data\\processed\\steam_games.csv'):
+    os.remove('Project\data\\processed\\steam_games.csv')
 
-def check_data(line, dataType, position):
-    unconventional = False
-    data = dataType
-    if dataType == 'price' or dataType == 'discount_price':
-        data = 0.0
-        unconventional = True
-    elif dataType == 'early_access':
-        data = True
-        unconventional = True
-    elif dataType == 'metascore':
-        data = 1
-        unconventional = True
+if os.path.exists('Project\data\\processed\\users_items.csv'):
+    os.remove('Project\data\\processed\\users_items.csv')
 
-    return unconventional, data
+if os.path.exists('Project\data\\processed\\users_reviews.csv'):
+    os.remove('Project\data\\processed\\users_reviews.csv')
 
-def get_data(line):
-    data = []
-    dataTemp = ''
-    flagBegin = False
-    flagProcess = False
-    for i in range(len(line)):
-        c = line[i]
-        if c == 'u' and not flagBegin:
-            flagBegin = True
-        elif c == '\'' and flagBegin and not flagProcess:
-            flagProcess = True
-        elif c != '\'' and flagProcess:
-            dataTemp = dataTemp + c
-        elif c == '\'' and flagBegin and flagProcess:
-            unconventional = False
-            data.append(dataTemp)
-            unconventional, dataTemp = check_data(line, dataTemp, i)
-            if unconventional:
-                data.append(dataTemp)
-            dataTemp = ''
-            flagBegin = False
-            flagProcess = False
-            unconventional = False
-    return data
-
-def add_to_df(df, string, parName):
-    print("Some code")
-
+data = []
 
 parameters = ('publisher', 'genres', 'app_name', 'title',
               'url', 'release_date', 'tags',
@@ -58,19 +19,45 @@ parameters = ('publisher', 'genres', 'app_name', 'title',
               'price', 'early_access', 'id', 'developer',
               'sentiment', 'metascore')
 
-dataframe = []
+data = []
+data2 = []
+data3 = []
 
-f = open('Project\data\\raw\\steam_games.json', "r")
-
-for i in range(2):
-    row = []
+f = open('Project\data\\raw\\output_steam_games.json', "r")
+for i in range(120445):
     line = f.readline()
-#for line in f:
-    data = get_data(line)
-    for i in data:
-        if i in parameters:
-            print("parameter: ", i)
-        else:
-            print("data: ", i)
-
+    if i < 88310:
+        data2.append(json.loads(line))
+        continue
+    data.append(json.loads(line))
 f.close
+
+#f = open('Project\data\\raw\\australian_user_reviews.json', "r")
+#for i in range(25799):
+#    line = f.readline()
+#    data3.append(json.dumps(line))
+#f.close
+
+
+df = pd.DataFrame.from_dict(data)
+df = df.drop(columns=['user_id', 'steam_id', 'items', 'items_count'])
+df.to_csv('Project\data\\processed\\steam_games.csv')
+
+df2 = pd.DataFrame.from_dict(data2)
+df2 = df2.drop(columns=['publisher', 'genres', 'app_name', 'title',
+                    'url', 'release_date', 'tags', 'reviews_url',
+                    'discount_price', 'specs',
+                    'price', 'early_access', 'id', 'developer', 'metascore'])
+df2.to_csv('Project\data\\processed\\users_items.csv')
+
+#df3 = pd.DataFrame.from_dict(data3)
+##df3.to_csv('Project\data\\processed\\users_reviews.csv')
+
+
+
+
+
+
+##print(data[0]['publisher'])
+#print(type(data[0]['publisher']))
+#print(len(data[0]['publisher']))

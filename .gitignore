@@ -1,0 +1,13 @@
+data/processed/steam_games_genres.csv
+data/processed/steam_games_tags.csv
+data/processed/steam_games.csv
+data/processed/users_items.csv
+data/processed/users_reviews.csv
+data/raw/australian_user_reviews.json
+data/raw/australian_users_items.json
+data/raw/Diccionario de Datos STEAM.xlsx
+data/raw/output_steam_games.json
+data/raw/steam_games.json.gz
+data/raw/user_reviews.json.gz
+data/raw/users_items.json.gz
+data/processed/steam_games_specs.csv

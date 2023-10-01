@@ -18,14 +18,15 @@ def fill_empty_data(df):
 
     df2 = df[df2].sort_values('user_id')
     df3 = df[df3].sort_values('steam_id')
-    df4 = df[df4].sort_values('user_id')
-    df5 = df[df4].sort_values('steam_id')
+    df5 = df[df4].sort_values('user_id')
+    df6 = df[df4].sort_values('steam_id')
 
 
-    df[df2].to_csv('data\\processed\\users_items_flat_test2.csv')
-    df[df3].to_csv('data\\processed\\users_items_flat_test3.csv')
-    df[df4].to_csv('data\\processed\\users_items_flat_test4.csv')
-    df[df5].to_csv('data\\processed\\users_items_flat_test5.csv')
+    df2.to_csv('data\\processed\\users_items_flat_test2.csv')
+    df3.to_csv('data\\processed\\users_items_flat_test3.csv')
+    #df[df4].to_csv('data\\processed\\users_items_flat_test4.csv')
+    df5.to_csv('data\\processed\\users_items_flat_test5.csv')
+    df6.to_csv('data\\processed\\users_items_flat_test6.csv')
 
     #print(df)
 
@@ -62,6 +63,7 @@ def untangle_df(df, foreign_key):
 def untangle_csv(primary_key, foreign_key):
     df = pd.read_csv('data\\processed\\users_items.csv',
                      encoding="UTF-8", index_col=0)
+    df.drop_duplicates(inplace=True)
     df = fill_empty_data(df)
     #df = untangle_df(df[[primary_key, foreign_key]].copy(), foreign_key)
     #df.to_csv('data\\processed\\steam_games_' + foreign_key + '.csv')

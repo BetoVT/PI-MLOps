@@ -3,6 +3,8 @@ import json
 from warnings import simplefilter
 
 def fill_empty_data(df):
+    #Possible to fill data with web-scraping
+    #Filling manually for now
     df.at[2580, 'app_name'] = "Duet"
     df.drop(df.index[74], inplace=True)
     return df
@@ -31,7 +33,6 @@ def untangle_df(df, foreign_key):
 
     for i in attributes:
         df.loc[df[foreign_key].str.contains(i),i] = True
-        #df.loc[df[foreign_key].str.match('|'.join(i))] = True
     df.drop(columns=foreign_key, inplace=True)
     return df
 

@@ -1,6 +1,5 @@
 import pandas as pd
 import json
-from warnings import simplefilter
 
 PARAMS_ITEMS = ["{\'item_id': \'", "\', \'item_name\': \'",
                 "\', \'playtime_forever\': \'", "\', \'playtime_2weeks\': \'",
@@ -22,42 +21,40 @@ def search_item(s, past_length):
     str_strt = s.find("{\"item_id\": \"", past_length)
     str_end = s.find("\"}", past_length) + 2
     s = s[str_strt:str_end]
-    #print(s)
     return s
 
-def add_items(s, count):
+def add_items(s, count, primary_key):
     s = fixStr_user_reviews(s)
     lst = []
     past_length = 0
+    user_id = {'user_id': primary_key}
     for i in range(count):
         new_item = search_item(s, past_length)
-        lst.append(json.loads(new_item))
-        #print("Saved length: ", past_length)
+        item_to_append = {**user_id, **json.loads(new_item)}
         past_length = past_length + len(new_item) + 2
+        if item_to_append['playtime_forever'] == '0':
+            continue
+        else:
+            lst.append(item_to_append)
     return lst
 
-#print(add_items(test, test_count))
-
-def untangle_df(df, foreign_key):
-    simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
+def untangle_df(df, primary_key):
     items = []
     for i in range(df.shape[0]):
         s = df.at[i, 'items']
         count = df.at[i, 'items_count']
-        #print("count is: ", count)
-        #print("line is: ", i + 1)
-        #print("string is: ", s)
-        items = items + add_items(s, count)
-    
-    return items
+        new_items = add_items(s, count, df.at[i, primary_key])
+        items.extend(new_items)
+    new_df = pd.DataFrame.from_dict(items)
+    return new_df
 
-def untangle_csv(primary_key, foreign_key):
+def untangle_csv(primary_key):
     df = pd.read_csv('data\\processed\\users_items.csv',
                      encoding="UTF-8", index_col=0)
     df.drop_duplicates(inplace=True)
     df.reset_index(drop=True, inplace=True)
-    df2 = pd.DataFrame.from_dict(untangle_df(df[[primary_key, foreign_key, 'items_count']].copy(), foreign_key))
-    print(df2)
-    df2.to_csv('data\\processed\\user_' + foreign_key + '_flat.csv')
+    df2 = untangle_df(df[[primary_key, 'items', 'items_count']].copy(),
+                      primary_key)
+    df2.to_csv('data\\processed\\user_items_flat.csv')
 
-untangle_csv('user_id', 'items')
+untangle_csv('user_id')

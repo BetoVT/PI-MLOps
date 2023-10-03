@@ -14,3 +14,7 @@ data/processed/steam_games_specs.csv
 data/raw/Diccionario de Datos STEAM.xlsx
 src/process/test.py
 data/processed/users_items_flat.csv
+data/final/steam_games.csv
+data/final/steam_games_genres.csv
+data/final/steam_games_specs.csv
+data/final/steam_games_tags.csv

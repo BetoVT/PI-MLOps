@@ -1,20 +1,13 @@
 from fastapi import FastAPI
+import pandas as pd
 
 app = FastAPI()
 
-
-@app.get("/inicio")
-async def ruta_prueba():
-    return "Hola"
-
-@app.get("/inicio2")
-async def ruta_prueba2():
-    return "Adios"
-
 @app.get("/PlayTimeGenre")
 def playTimeGenre(genre):
-    year = 0
-    return year
+    df = pd.read_csv('data\\final\\playTimeGenre.csv')
+    d = df.to_dict()
+    return {"Año de lanzamiento con más horas jugadas para " + genre: d[genre][0]} 
 
 @app.get("/UserForGenre")
 def userForGenre(genre):
@@ -36,3 +29,5 @@ def usersNotRecommend(genre):
 def sentimentAnalysis(entName):
     reviews = 4
     return reviews
+
+print(playTimeGenre('Action'))

@@ -12,5 +12,5 @@ data/raw/user_reviews.json.gz
 data/raw/users_items.json.gz
 data/processed/steam_games_specs.csv
 data/raw/Diccionario de Datos STEAM.xlsx
-data/processed/user_items_flat.csv
 src/process/test.py
+data/processed/users_items_flat.csv

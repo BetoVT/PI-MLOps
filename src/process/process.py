@@ -1,6 +1,5 @@
 import pandas as pd
 import json
-import sys
 import os
 
 PARAMS_USERS_ITEMS = ["{\'user_id\': \'", "\', \'items_count\': \'",
@@ -71,8 +70,6 @@ f.close
 df = pd.DataFrame.from_dict(steam_games)
 df2 = pd.DataFrame.from_dict(users_items)
 df3 = pd.DataFrame.from_dict(user_reviews)
-
-df = df.drop(columns=['title'])
 
 df.to_csv('data\\processed\\steam_games.csv')
 df2.to_csv('data\\processed\\users_items.csv')

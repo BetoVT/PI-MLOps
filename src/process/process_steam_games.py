@@ -41,7 +41,16 @@ def untangle_csv(primary_key, foreign_key):
                      encoding="UTF-8", index_col=0)
     df = fill_empty_data(df)
     df = untangle_df(df[[primary_key, foreign_key]].copy(), foreign_key)
-    df.to_csv('data\\processed\\steam_games_' + foreign_key + '.csv')
+    df.to_csv('data\\final\\steam_games_' + foreign_key + '.csv')
+
+def untangle_main():
+    df = pd.read_csv('data\\processed\\steam_games.csv',
+                     encoding="UTF-8", index_col=0)
+    df = fill_empty_data(df)
+    df.drop(columns=['publisher', 'genres', 'url', 'tags' ,'reviews_url',
+                     'specs', 'price', 'early_access', 'id', 'developer'], inplace = True)
+    df.to_csv('data\\final\\steam_games.csv')
+
 
 untangle_csv('app_name', 'genres')
 untangle_csv('app_name', 'tags')

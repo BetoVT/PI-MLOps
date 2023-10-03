@@ -1,6 +1,12 @@
+import pandas as pd
+
 def playTimeGenreF(genre):
+    games = pd.read_csv('data\\processed\\steam_games_genres.csv',
+                        encoding="UTF-8", index_col=0)
+    users = pd.read_csv('data\\processed\\users_items_flat.csv',
+                        encoding="UTF-8", index_col=0)
     year = 0
-    return year
+    return {"Año de lanzamiento con más horas jugadas para " + genre: year}
 
 def userForGenreF(genre):
     user = 1.1
@@ -18,3 +24,6 @@ def usersNotRecommendF(genre):
 def sentimentAnalysisF(entName):
     reviews = 4
     return reviews
+
+print(playTimeGenreF('Action'))
+print(type(playTimeGenreF('Action')))

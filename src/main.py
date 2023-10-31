@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import pandas as pd
 
 def developerAPI_f(developer):
-    games = pd.read_csv('data\\output\\developer.csv', encoding="UTF-8",
+    games = pd.read_csv('data\output\developer.csv', encoding="UTF-8",
                         usecols=['app_name', 'developer', 'year', 'price'],
                         index_col=['developer', 'year'])
     dev = games.index.get_level_values(0)

@@ -7,13 +7,37 @@ def fix_date(s):
     found_date = False
     for i in range(1969, 2022, 1):
         if str(i) in str(s):
-            s = i
+            s = int(i)
             found_date = True
     
     if not found_date:
         s = np.nan
         
     return s
+
+def fix_price(s):
+    free_conditions = ['Free', 'Free to Play', 'Free To Play',
+                       'Play for Free!', 'Install Now', 'Play Now',
+                       'Free to Try', 'Free Movie', 'Free to Use']
+    
+    unambiguos_contitions = ['Play WARMACHINE: Tactics Demo', 'Third-party',
+                             'Free Demo', 'Free Mod', 'Install Theme',
+                             'Free HITMAN™ Holiday Pack', 'Play the Demo',
+                             'Free to Try']
+
+
+    if s == 'Starting at $449.00':
+        return float(449)
+    elif s == 'Starting at $499.00':
+        return float(499)
+    elif s in free_conditions:
+        return float(0)
+    elif s in unambiguos_contitions:
+        return np.nan
+    elif s != '':
+        return float(s)
+        
+    return np.nan
 
 def fill_empty_data(df):
     #Possible to fill data with web-scraping
@@ -59,16 +83,18 @@ def untangle_csv(primary_key, foreign_key):
 
 def untangle_main():
     df = pd.read_csv('data\\processed\\steam_games.csv',
-                     encoding="UTF-8", index_col=0)
+                     encoding="UTF-8", index_col=0, dtype={'id': 'string'})
     df = fill_empty_data(df)
     df['year'] = df.apply(lambda row : fix_date(row['release_date']), axis = 1)
-    df.drop(columns=['publisher', 'genres', 'url', 'tags' ,'reviews_url',
-                     'title', 'specs', 'price', 'early_access', 'id',
-                     'developer', 'release_date'], inplace = True)
-    df.to_csv('data\\final\\steam_games.csv')
+    df['price'] = df.apply(lambda row : fix_price(row['price']), axis = 1)
+    df.drop(columns=['genres', 'url', 'tags' ,'reviews_url',
+                     'title', 'specs', 'early_access',
+                     'release_date'], inplace = True)
+    print(df)
+    df.to_csv('data\\final\\steam_games_flat.csv')
 
 
-untangle_csv('app_name', 'genres')
-untangle_csv('app_name', 'tags')
-untangle_csv('app_name', 'specs')
+#untangle_csv('app_name', 'genres')
+#untangle_csv('app_name', 'tags')
+#untangle_csv('app_name', 'specs')
 untangle_main()

@@ -5,7 +5,7 @@ PARAMS_ITEMS = ["{\'item_id': \'", "\', \'item_name\': \'",
                 "\', \'playtime_forever\': \'", "\', \'playtime_2weeks\': \'",
                 "\'}, {", "\'}]"]
 
-PARAMS_ITEMS_ORIGINAL = ["\', 'playtime_forever': ",
+PARAMS_ITEMS_ORIGINAL = ["\', \'playtime_forever\': ",
                          ", \'playtime_2weeks\': ", "}, {", "}]"]
 
 def fixStr_user_items(line):
@@ -55,6 +55,6 @@ def untangle_csv(primary_key):
     df.reset_index(drop=True, inplace=True)
     df2 = untangle_df(df[[primary_key, 'items', 'items_count']].copy(),
                       primary_key)
-    df2.to_csv('data\\processed\\users_items_flat.csv')
+    df2.to_csv('data\\final\\users_items_flat.csv')
 
 untangle_csv('user_id')

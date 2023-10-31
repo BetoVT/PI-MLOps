@@ -1,89 +1,70 @@
 import pandas as pd
 
-def get_playTimeGenre(primary_key):    
-    games = pd.read_csv('data\\final\\steam_games_genres.csv',
-                        encoding="UTF-8", index_col=0)
-    dates = pd.read_csv('data\\final\\steam_games.csv',
-                        encoding="UTF-8", usecols=['year'])
-    users = pd.read_csv('data\\processed\\users_items_flat.csv',
-                        encoding="UTF-8", index_col=0)
-    
-    print(games)
-    print(dates)
-
-    games = pd.concat([games, dates], axis=1)
-    games.dropna(subset=['year'], inplace=True)
+def get_developer(primary_key):
+    games = pd.read_csv('data\\final\\steam_games_flat.csv', encoding="UTF-8",
+                        usecols=[primary_key, 'developer', 'year', 'price'])
+    games.dropna(inplace=True)
     games.reset_index(drop=True, inplace=True)
-    
-    print(games)
+    games.set_index(['developer', 'year'], inplace=True)
+    games.to_csv('data\\output\\developer.csv')
 
-    years = []
-    playTimeGenre = {}
-    genres = games.drop(columns=[primary_key, 'year']).columns.values.tolist()
-    genre_games = []
-    for i in range(1970, 2022, 1):
-        years.append(i)
+    """ cond = ((dev == developer) & (year == float(i)))
+        slice = games[cond]
+        if not slice.empty:
+            total_items = slice['app_name'].count()
+            free_items = slice['app_name'].loc[slice['price'] == 0.0].count()
+            free_items = str(float((free_items / total_items * 100))) + '%'
+            iter_dict = {"Año": i,
+                         "Cantidad de items": total_items,
+                         "Contenido Free": free_items}
+            devList.append(iter_dict)
+"""
 
-    for i in genres:
-        playTimeGenre.update({i: 0})
-        max_playtime = 0
-        max_user = {}
-        for j in years:
-            temp = 0
-            genre_games = games[primary_key].loc[(games[i] == True) & (games['year'] == j)].tolist()
-            #print("Searching for games with genre", i, "released at year", j)
-            for k in genre_games:
-                temp = temp + users['playtime_forever'].loc[users['item_name'] == k].sum()
-            if temp > max_playtime:
-                print("New max playtime for genre", i, "is", temp, "at year", j)
-                playTimeGenre.update({i: [j]})
-                #print("New dict: ", playTimeGenre)
-                max_playtime = temp
-                temp = 0
+def get_userdata(primary_key):
+    games = pd.read_csv('data\\final\\steam_games_flat.csv', encoding="UTF-8",
+                        usecols=['id', 'price'], dtype={'id': 'string'})
+    users = pd.read_csv('data\\final\\users_items_flat.csv', encoding="UTF-8",
+                        usecols=[primary_key, 'item_id'],
+                        index_col=[primary_key], dtype={'item_id': 'string'})
+    revws = pd.read_csv('data\\final\\user_reviews_flat.csv', encoding="UTF-8",
+                        usecols=[primary_key, 'item_id', 'recommend'],
+                        index_col=[primary_key], dtype={'item_id': 'string'})
+    games.dropna(inplace=True)
+    users.dropna(inplace=True)
+    revws.dropna(inplace=True)
+    userlist = users.index.unique().to_series().to_list()
+    lst = []
+    cont = 0
+    ttl = len(userlist)
+    checkpoint = 100
+    for i in userlist:
+        usergames = users[users.index == i]
+        usergames = usergames['item_id'].tolist()
+        userrevws = revws[revws.index == i]
+        user_recommended = userrevws['recommend'].loc[userrevws['recommend'] == True].count()
+        total = 0
+        for j in usergames:
+            gameprice = games['price'].loc[games['id'] == j]
+            if gameprice.empty:
+                continue
+            total = total + gameprice.values[0]
+        total = round(total, 2)
+        rec_percent = str(round(user_recommended / len(usergames) * 100)) + "%"
+        iter_dict = {"Usuario X": i,
+                     "Dinero gastado": (str(total) + ' USD'),
+                     "% de recomendación": rec_percent,
+                     "cantidad de items": len(usergames)}
+        lst.append(iter_dict)
 
-    
-    df = pd.DataFrame.from_dict(playTimeGenre)
+        cont = cont + 1
+        if cont == checkpoint:
+            print("Checked", cont, "users out of", ttl)
+            checkpoint = checkpoint + 100
+    df = pd.DataFrame.from_dict(lst)
+    print(df)
+    games.to_csv('data\\output\\userdata.csv')
 
-    df.to_csv('data\\final\\playTimeGenre.csv')
 
-def get_userForGenre(primary_key):    
-    games = pd.read_csv('data\\final\\steam_games_genres.csv',
-                        encoding="UTF-8", index_col=0)
-    dates = pd.read_csv('data\\final\\steam_games.csv',
-                        encoding="UTF-8", usecols=['year'])
-    users = pd.read_csv('data\\processed\\users_items_flat.csv',
-                        encoding="UTF-8", index_col=0)
 
-    games = pd.concat([games, dates], axis=1)
-    games.dropna(subset=['year'], inplace=True)
-    games.reset_index(drop=True, inplace=True)
-
-    years = []
-    userForGenre = []
-    genres = games.drop(columns=[primary_key, 'year']).columns.values.tolist()
-    genre_games = []
-    for i in range(1970, 2022, 1):
-        years.append(i)
-
-    for i in genres:
-        max_playtime = 0
-        genre_games = games[primary_key].loc[(games[i] == True)].tolist()
-        max_user = {}
-        temp = 0
-        for j in genre_games:
-            temp = temp + users['playtime_forever'].loc[users['item_name'] == j].sum()
-        if temp > max_playtime:
-            for k in years:
-                genre_games = games[primary_key].loc[(games[i] == True) & (games['year'] == j)].tolist()
-                max_user.update({i: j})
-            print("New max playtime for genre", i, "is", temp, "at year", j)
-            max_playtime = temp
-            userForGenre.append(max_user)
-            temp = 0
-
-    
-    df = pd.DataFrame.from_dict(userForGenre)
-
-    df.to_csv('data\\final\\userForGenre.csv')
-
-get_playTimeGenre('app_name')
+get_developer('app_name')
+get_userdata('user_id')

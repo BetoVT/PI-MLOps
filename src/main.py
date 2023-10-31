@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 import pandas as pd
-import functions as f
 
 def developerAPI_f(developer):
     games = pd.read_csv('data\\output\\developer.csv', encoding="UTF-8",

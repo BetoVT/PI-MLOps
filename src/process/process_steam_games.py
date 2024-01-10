@@ -90,11 +90,10 @@ def untangle_main():
     df.drop(columns=['genres', 'url', 'tags' ,'reviews_url',
                      'title', 'specs', 'early_access',
                      'release_date'], inplace = True)
-    print(df)
     df.to_csv('data\\final\\steam_games_flat.csv')
 
 
-#untangle_csv('app_name', 'genres')
-#untangle_csv('app_name', 'tags')
-#untangle_csv('app_name', 'specs')
+untangle_csv('app_name', 'genres')
+untangle_csv('app_name', 'tags')
+untangle_csv('app_name', 'specs')
 untangle_main()
